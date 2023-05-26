@@ -20,7 +20,7 @@ export class LoggingService {
     });
     return log;
   }
-  async logUrl(url: UrlCheck) {
+  async logUrl(url: UrlCheck): Promise<boolean> {
     console.log(`Checking ${url.url}`);
     const startTime = new Date();
     const response = await timeoutPromise(
@@ -45,6 +45,7 @@ export class LoggingService {
       responseTime
     );
     console.log({ log: log });
+    return response;
   }
 }
 

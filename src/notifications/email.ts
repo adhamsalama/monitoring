@@ -1,7 +1,6 @@
 import nodemailer from "nodemailer";
 import { AbstractNotification } from "./types";
-
-// export async function
+import { usersService } from "../users/service";
 
 export class EmailNotification implements AbstractNotification {
   async send(to: string, content: string, subject?: string) {
@@ -38,4 +37,13 @@ export class EmailNotification implements AbstractNotification {
 
     return true;
   }
+  async sendToUser(userId: string, content: string, subject?: string) {
+    const user = await usersService.findById(userId);
+    if (!user) {
+      throw new Error(`User ${userId} doesn't exist`);
+    }
+    return this.send(user.email, content, subject);
+  }
 }
+
+export const emailNotificationService = new EmailNotification();

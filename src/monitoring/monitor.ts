@@ -1,6 +1,7 @@
 import { redisCache } from "../cache/redis";
 import { UrlCheck } from "../checks/types";
 import { loggingService } from "./service";
+import { emailNotificationService } from "../notifications/email";
 
 export async function monitor() {
   redisCache.subscribe("create", async (message) => {
@@ -9,6 +10,7 @@ export async function monitor() {
     console.log({ key, value: parsedMessage.intervalInSeconds });
 
     await redisCache.set(key, parsedMessage.intervalInSeconds.toString());
+    let isUp = true;
     const intervalId = setInterval(async () => {
       const checkInterval = await redisCache.get(key);
       if (
@@ -20,7 +22,14 @@ export async function monitor() {
         );
         clearInterval(intervalId);
       }
-      await loggingService.logUrl(parsedMessage);
+      let response = await loggingService.logUrl(parsedMessage);
+      if (response !== isUp) {
+        emailNotificationService.sendToUser(
+          parsedMessage.userId,
+          `Website ${parsedMessage.url} is ${response ? "UP" : "DOWN"}`
+        );
+        isUp = false;
+      }
     }, parsedMessage.intervalInSeconds * 1000);
   });
 
@@ -28,6 +37,7 @@ export async function monitor() {
     const parsedMessage = JSON.parse(message) as UrlCheck;
     const key = String(parsedMessage._id) + parsedMessage.url;
     await redisCache.set(key, parsedMessage.intervalInSeconds.toString());
+    let isUp = true;
     const intervalId = setInterval(async () => {
       const checkInterval = await redisCache.get(key);
       if (
@@ -39,7 +49,14 @@ export async function monitor() {
         );
         clearInterval(intervalId);
       }
-      await loggingService.logUrl(parsedMessage);
+      let response = await loggingService.logUrl(parsedMessage);
+      if (response !== isUp) {
+        emailNotificationService.sendToUser(
+          parsedMessage.userId,
+          `Website ${parsedMessage.url} is ${response ? "UP" : "DOWN"}`
+        );
+        isUp = false;
+      }
     }, parsedMessage.intervalInSeconds * 1000);
   });
 

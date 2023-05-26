@@ -2,6 +2,7 @@ import { User } from "./types";
 import { UserModel } from "./models/user";
 import { CreateUserDto } from "./dto/create-user";
 import bcrypt from "bcrypt";
+import { Optional } from "../types";
 
 class UsersService {
   constructor(private userModel: typeof UserModel) {}
@@ -29,6 +30,10 @@ class UsersService {
       return null;
     }
     return { _id: user._id, email: user.email, verified: user.verified };
+  }
+
+  async findById(id: string): Promise<Optional<User>> {
+    return this.userModel.findById(id);
   }
 
   async verifyUser(email: string): Promise<void> {
