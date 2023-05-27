@@ -8,7 +8,7 @@ import { NotificationChannel } from "../notifications/types";
 
 export async function monitor(notificationsService: NotificationsService) {
   redisCache.subscribe("create", async (message) => {
-    const parsedMessage = JSON.parse(message as string) as UrlCheck;
+    const parsedMessage = JSON.parse(message) as UrlCheck;
     poll(parsedMessage, notificationsService);
   });
 
