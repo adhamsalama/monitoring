@@ -3,8 +3,8 @@ import { Cache } from "./cache";
 import { Optional } from "../types";
 
 export class RedisCache implements Cache {
-  pub: Redis;
-  sub: Redis;
+  private readonly pub: Redis;
+  private readonly sub: Redis;
   constructor(private readonly redis: Redis) {
     this.pub = new Redis();
     this.sub = new Redis();
