@@ -28,7 +28,7 @@ async function poll(check: UrlCheck) {
   const key = String(check._id) + check.url;
   await redisCache.set(key, check.intervalInSeconds.toString());
   let isUp = true;
-  const intervalId = setInterval(async () => {
+  const pollAndLog = async () => {
     const checkInterval = await redisCache.get(key);
     if (!checkInterval || Number(checkInterval) !== check.intervalInSeconds) {
       console.log(
@@ -50,5 +50,7 @@ async function poll(check: UrlCheck) {
       }
       isUp = false;
     }
-  }, check.intervalInSeconds * 1000);
+  };
+  pollAndLog();
+  const intervalId = setInterval(pollAndLog, check.intervalInSeconds * 1000);
 }
