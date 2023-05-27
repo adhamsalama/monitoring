@@ -50,6 +50,7 @@ const urlCheckSchema = new Schema<UrlCheck>(
       },
     },
     httpHeaders: {
+      _id: false,
       required: false,
       type: [
         {
@@ -65,6 +66,7 @@ const urlCheckSchema = new Schema<UrlCheck>(
       ],
     },
     assert: {
+      _id: false,
       required: false,
       type: {
         statusCode: {
