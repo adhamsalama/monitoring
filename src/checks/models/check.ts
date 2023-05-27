@@ -89,7 +89,7 @@ const urlCheckSchema = new Schema<UrlCheck>(
 
   { timestamps: true }
 );
-// urlCheckSchema.index({ userId: 1, url: 1 });
+urlCheckSchema.index({ userId: 1, url: 1, path: 1 }, { unique: true });
 urlCheckSchema.index({ userId: 1, tags: 1 });
 
 export const CheckModel = model<UrlCheck>("UrlCheck", urlCheckSchema);
