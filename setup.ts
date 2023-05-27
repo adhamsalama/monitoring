@@ -14,3 +14,10 @@ beforeAll(async () => {
     })
     .catch((err) => console.log(`error ${err}`));
 });
+afterEach(async () => {
+  await mongoose.connection.dropDatabase();
+});
+afterAll(async () => {
+  await mongoose.connection.dropDatabase();
+  await mongoose.connection.close();
+});
