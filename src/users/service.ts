@@ -4,7 +4,7 @@ import { CreateUserDto } from "./dto/create-user";
 import bcrypt from "bcrypt";
 import { Optional } from "../types";
 
-class UsersService {
+export class UsersService {
   constructor(private userModel: typeof UserModel) {}
 
   async create(user: CreateUserDto): Promise<Omit<User, "password">> {

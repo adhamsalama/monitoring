@@ -1,10 +1,11 @@
-import { AbstractNotification } from "./types";
+import { AbstractNotification, NotificationChannel } from "./types";
 import { usersService } from "../users/service";
 import sgMail from "@sendgrid/mail";
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
 export class EmailNotification implements AbstractNotification {
+  channel = NotificationChannel.Email;
   async send(to: string, content: string, subject?: string) {
     const msg = {
       to,

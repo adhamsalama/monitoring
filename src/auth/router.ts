@@ -3,13 +3,10 @@ import { loginSchema } from "./dto/login";
 import { usersService } from "../users/service";
 import jwt from "jsonwebtoken";
 import { createUserDtoSchema } from "../users/dto/create-user";
-import { NotificationsFactory } from "../notifications/factory";
 import { NotificationChannel } from "../notifications/types";
+import { notificationsService } from "../notifications/service";
 
 const router = Router();
-const notificationChannel = NotificationsFactory.create(
-  NotificationChannel.Email
-);
 
 router.post("/login", async (req, res) => {
   const loginCredentials = loginSchema.safeParse(req.body);
@@ -39,8 +36,9 @@ router.post("/register", async (req, res) => {
     expiresIn: "1h",
   });
   const verificationUrl = `${process.env.BASE_URL}/auth/verify?token=${token}`;
-  notificationChannel.send(
-    user.email,
+  notificationsService.notify(
+    String(user._id),
+    [NotificationChannel.Email],
     `Your verification link is ${verificationUrl}`,
     "Verify your account"
   );

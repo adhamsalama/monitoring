@@ -1,9 +1,10 @@
 import { redisCache } from "../cache/redis";
 import { UrlCheck } from "../checks/types";
 import { loggingService } from "./service";
-import { emailNotificationService } from "../notifications/email";
+import { notificationsService } from "../notifications/service";
 import axios from "axios";
 import { LogStatus } from "./types";
+import { NotificationChannel } from "../notifications/types";
 
 export async function monitor() {
   redisCache.subscribe("create", async (message) => {
@@ -38,9 +39,11 @@ async function poll(check: UrlCheck) {
     }
     const response = await loggingService.logUrl(check);
     if (response !== isUp) {
-      emailNotificationService.sendToUser(
+      notificationsService.notify(
         check.userId,
-        `Website ${check.url} is ${response ? LogStatus.UP : LogStatus.DOWN}`
+        [NotificationChannel.Email],
+        `Website ${check.url} is ${response ? LogStatus.UP : LogStatus.DOWN}`,
+        "Alert for your URL check"
       );
       if (check.webhook) {
         axios
