@@ -11,13 +11,15 @@ export class LoggingService {
     checkId: string,
     status: LogStatus,
     url: string,
-    responseTime: number
+    responseTime: number,
+    intervalInSeconds: number
   ): Promise<Log> {
     const log = await this.logModel.create({
       checkId,
       status,
       url,
       responseTime,
+      intervalInSeconds,
     });
     return log;
   }
@@ -69,7 +71,8 @@ export class LoggingService {
       String(url._id),
       response ? LogStatus.UP : LogStatus.DOWN,
       url.url,
-      responseTime
+      responseTime,
+      url.intervalInSeconds
     );
     console.log({ log: log });
     return response;

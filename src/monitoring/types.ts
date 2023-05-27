@@ -12,4 +12,5 @@ export interface Log {
   updatedAt: Date;
   url: string;
   responseTime: number;
+  intervalInSeconds: number;
 }

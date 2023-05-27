@@ -19,6 +19,10 @@ const logSchema = new Schema<Log>(
       type: Number,
       required: true,
     },
+    intervalInSeconds: {
+      type: Number,
+      required: true,
+    },
   },
   {
     timestamps: true,
