@@ -8,7 +8,7 @@ import { currentUser, requireAuth } from "./auth/middleware";
 import { monitor } from "./monitoring/monitor";
 dotenv.config();
 
-const app = express();
+export const app = express();
 
 // ? use express async error
 // ? add error handling instead of returning res.something...
@@ -32,4 +32,4 @@ async function main() {
   monitor();
 }
 
-main();
+// main();
