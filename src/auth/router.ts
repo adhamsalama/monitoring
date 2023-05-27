@@ -38,12 +38,12 @@ router.post("/register", async (req, res) => {
   const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET!, {
     expiresIn: "1h",
   });
-
-  // await notificationChannel.send(
-  //   user.email,
-  //   `Your verification link is ${process.env.BASE_URL}/auth/verify?token=${token}`,
-  //   "Verify your account"
-  // );
+  const verificationUrl = `${process.env.BASE_URL}/auth/verify?token=${token}`;
+  notificationChannel.send(
+    user.email,
+    `Your verification link is ${verificationUrl}`,
+    "Verify your account"
+  );
 
   return res.status(201).send(user);
 });
