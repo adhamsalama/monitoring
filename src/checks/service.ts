@@ -6,7 +6,7 @@ import { CheckModel } from "./models/check";
 import { UrlCheck } from "./types";
 import { RedisCache, redisCache } from "../cache/redis";
 
-class ChecksService {
+export class ChecksService {
   constructor(
     private checkModel: typeof CheckModel,
     private redisCache: RedisCache
@@ -20,7 +20,7 @@ class ChecksService {
     );
     const check = await this.checkModel.create({ ...createCheckDTO, userId });
     this.redisCache.publish("create", JSON.stringify(check));
-    return check;
+    return check.toObject();
   }
 
   async getAll(userId: string): Promise<UrlCheck[]> {
@@ -32,10 +32,12 @@ class ChecksService {
   }
 
   async deleteById(id: string, userId: string): Promise<Optional<UrlCheck>> {
-    const deletedCheck = await this.checkModel.findOneAndDelete({
-      _id: id,
-      userId,
-    });
+    const deletedCheck = await this.checkModel
+      .findOneAndDelete({
+        _id: id,
+        userId,
+      })
+      .lean();
     if (deletedCheck) {
       this.redisCache.publish("delete", JSON.stringify(deletedCheck));
     }
@@ -47,11 +49,9 @@ class ChecksService {
     userId: string,
     update: UpdateCheckDTO
   ): Promise<Optional<UrlCheck>> {
-    const updatedCheck = await this.checkModel.findOneAndUpdate(
-      { _id: id, userId },
-      { $set: update },
-      { new: true }
-    );
+    const updatedCheck = await this.checkModel
+      .findOneAndUpdate({ _id: id, userId }, { $set: update }, { new: true })
+      .lean();
     if (updatedCheck) {
       this.redisCache.publish("update", JSON.stringify(updatedCheck));
     }
