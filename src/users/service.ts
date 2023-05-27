@@ -13,23 +13,29 @@ export class UsersService {
       throw new Error("User already exists");
     }
     const hashedPassword = await bcrypt.hash(user.password, 10);
-    user.password = hashedPassword;
-    const createdUser = await this.userModel.create(user);
+    const createdUser = await this.userModel.create({
+      ...user,
+      password: hashedPassword,
+    });
     return {
       _id: createdUser._id,
       email: createdUser.email,
       verified: createdUser.verified,
+      name: createdUser.name,
     };
   }
 
   async findByEmail(email: string): Promise<Omit<User, "password"> | null> {
     const user = await this.userModel.findOne({ email }).lean();
-    console.log({ user });
-
     if (!user) {
       return null;
     }
-    return { _id: user._id, email: user.email, verified: user.verified };
+    return {
+      _id: user._id,
+      email: user.email,
+      verified: user.verified,
+      name: user.name,
+    };
   }
 
   async findById(id: string): Promise<Optional<User>> {
@@ -56,6 +62,7 @@ export class UsersService {
       _id: user._id,
       email: user.email,
       verified: user.verified,
+      name: user.name,
     };
   }
 }
