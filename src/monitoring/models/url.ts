@@ -29,4 +29,6 @@ const logSchema = new Schema<Log>(
   }
 );
 
+logSchema.index({ checkId: 1 });
+
 export const LogModel = model<Log>("Log", logSchema);
