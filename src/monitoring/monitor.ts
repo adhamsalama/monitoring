@@ -2,6 +2,8 @@ import { redisCache } from "../cache/redis";
 import { UrlCheck } from "../checks/types";
 import { loggingService } from "./service";
 import { emailNotificationService } from "../notifications/email";
+import axios from "axios";
+import { LogStatus } from "./types";
 
 export async function monitor() {
   redisCache.subscribe("create", async (message) => {
@@ -34,12 +36,18 @@ async function poll(check: UrlCheck) {
       );
       clearInterval(intervalId);
     }
-    let response = await loggingService.logUrl(check);
+    const response = await loggingService.logUrl(check);
     if (response !== isUp) {
       emailNotificationService.sendToUser(
         check.userId,
-        `Website ${check.url} is ${response ? "UP" : "DOWN"}`
+        `Website ${check.url} is ${response ? LogStatus.UP : LogStatus.DOWN}`
       );
+      if (check.webhook) {
+        axios.post(check.url, {
+          url: `${check.url}${check.path ?? ""}`,
+          status: response ? LogStatus.UP : LogStatus.DOWN,
+        });
+      }
       isUp = false;
     }
   }, check.intervalInSeconds * 1000);
