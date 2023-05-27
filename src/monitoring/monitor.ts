@@ -6,58 +6,12 @@ import { emailNotificationService } from "../notifications/email";
 export async function monitor() {
   redisCache.subscribe("create", async (message) => {
     const parsedMessage = JSON.parse(message as string) as UrlCheck;
-    const key = String(parsedMessage._id) + parsedMessage.url;
-    console.log({ key, value: parsedMessage.intervalInSeconds });
-
-    await redisCache.set(key, parsedMessage.intervalInSeconds.toString());
-    let isUp = true;
-    const intervalId = setInterval(async () => {
-      const checkInterval = await redisCache.get(key);
-      if (
-        !checkInterval ||
-        Number(checkInterval) !== parsedMessage.intervalInSeconds
-      ) {
-        console.log(
-          `Couldn't find interval in cache or was changed. ${key}=${checkInterval}`
-        );
-        clearInterval(intervalId);
-      }
-      let response = await loggingService.logUrl(parsedMessage);
-      if (response !== isUp) {
-        emailNotificationService.sendToUser(
-          parsedMessage.userId,
-          `Website ${parsedMessage.url} is ${response ? "UP" : "DOWN"}`
-        );
-        isUp = false;
-      }
-    }, parsedMessage.intervalInSeconds * 1000);
+    poll(parsedMessage);
   });
 
   redisCache.subscribe("update", async (message) => {
     const parsedMessage = JSON.parse(message) as UrlCheck;
-    const key = String(parsedMessage._id) + parsedMessage.url;
-    await redisCache.set(key, parsedMessage.intervalInSeconds.toString());
-    let isUp = true;
-    const intervalId = setInterval(async () => {
-      const checkInterval = await redisCache.get(key);
-      if (
-        !checkInterval ||
-        Number(checkInterval) !== parsedMessage.intervalInSeconds
-      ) {
-        console.log(
-          `Couldn't find interval in cache or was changed in update! ${key}=${checkInterval}`
-        );
-        clearInterval(intervalId);
-      }
-      let response = await loggingService.logUrl(parsedMessage);
-      if (response !== isUp) {
-        emailNotificationService.sendToUser(
-          parsedMessage.userId,
-          `Website ${parsedMessage.url} is ${response ? "UP" : "DOWN"}`
-        );
-        isUp = false;
-      }
-    }, parsedMessage.intervalInSeconds * 1000);
+    poll(parsedMessage);
   });
 
   redisCache.subscribe("delete", async (message) => {
@@ -66,4 +20,27 @@ export async function monitor() {
     const key = String(parsedMessage._id) + parsedMessage.url;
     await redisCache.delete(key);
   });
+}
+
+async function poll(check: UrlCheck) {
+  const key = String(check._id) + check.url;
+  await redisCache.set(key, check.intervalInSeconds.toString());
+  let isUp = true;
+  const intervalId = setInterval(async () => {
+    const checkInterval = await redisCache.get(key);
+    if (!checkInterval || Number(checkInterval) !== check.intervalInSeconds) {
+      console.log(
+        `Couldn't find interval in cache or was changed. ${key}=${checkInterval}`
+      );
+      clearInterval(intervalId);
+    }
+    let response = await loggingService.logUrl(check);
+    if (response !== isUp) {
+      emailNotificationService.sendToUser(
+        check.userId,
+        `Website ${check.url} is ${response ? "UP" : "DOWN"}`
+      );
+      isUp = false;
+    }
+  }, check.intervalInSeconds * 1000);
 }
