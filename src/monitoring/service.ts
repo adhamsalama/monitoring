@@ -36,10 +36,15 @@ export class LoggingService {
       ).toString("base64");
       headers.authorization = `Basic ${token}`;
     }
+    let fullUrl = url.url;
+    if (url.path) {
+      fullUrl += url.path;
+    }
+
     const response = await timeoutPromise(
       url.timeoutInSeconds * 1000,
       axios
-        .get(url.url, {
+        .get(fullUrl, {
           headers,
           ...(url.ignoreSSL && {
             httpAgent: new https.Agent({
