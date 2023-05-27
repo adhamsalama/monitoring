@@ -18,7 +18,6 @@ export async function monitor(notificationsService: NotificationsService) {
   });
 
   redisCache.subscribe("delete", async (message) => {
-    console.log({ deleteMessage: JSON.stringify(message, null, 2) });
     const parsedMessage = JSON.parse(message) as UrlCheck;
     const key = String(parsedMessage._id) + parsedMessage.url;
     await redisCache.delete(key);
