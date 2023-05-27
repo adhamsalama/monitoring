@@ -1,20 +1,20 @@
 import { redisCache } from "../cache/redis";
 import { UrlCheck } from "../checks/types";
 import { loggingService } from "./service";
-import { notificationsService } from "../notifications/service";
+import { NotificationsService } from "../notifications/service";
 import axios from "axios";
 import { LogStatus } from "./types";
 import { NotificationChannel } from "../notifications/types";
 
-export async function monitor() {
+export async function monitor(notificationsService: NotificationsService) {
   redisCache.subscribe("create", async (message) => {
     const parsedMessage = JSON.parse(message as string) as UrlCheck;
-    poll(parsedMessage);
+    poll(parsedMessage, notificationsService);
   });
 
   redisCache.subscribe("update", async (message) => {
     const parsedMessage = JSON.parse(message) as UrlCheck;
-    poll(parsedMessage);
+    poll(parsedMessage, notificationsService);
   });
 
   redisCache.subscribe("delete", async (message) => {
@@ -25,7 +25,10 @@ export async function monitor() {
   });
 }
 
-async function poll(check: UrlCheck) {
+async function poll(
+  check: UrlCheck,
+  notificationsService: NotificationsService
+) {
   const key = String(check._id) + check.url;
   await redisCache.set(key, check.intervalInSeconds.toString());
   let isUp = true;
