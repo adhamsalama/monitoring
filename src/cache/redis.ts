@@ -35,7 +35,7 @@ export class RedisCache implements Cache {
     console.log({ channel, message });
   }
   async subscribe(
-    channel: "create" | "update" | "delete",
+    channel: string,
     callback: (message: string) => void
   ): Promise<void> {
     this.sub.subscribe(channel, (err, count) => {

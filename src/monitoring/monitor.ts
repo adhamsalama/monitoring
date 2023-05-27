@@ -5,19 +5,20 @@ import { NotificationsService } from "../notifications/service";
 import axios from "axios";
 import { LogStatus } from "./types";
 import { NotificationChannel } from "../notifications/types";
+import { PubSubChannel } from "../types";
 
 export async function monitor(notificationsService: NotificationsService) {
-  redisCache.subscribe("create", async (message) => {
+  redisCache.subscribe(PubSubChannel.Create, async (message) => {
     const parsedMessage = JSON.parse(message) as UrlCheck;
     poll(parsedMessage, notificationsService);
   });
 
-  redisCache.subscribe("update", async (message) => {
+  redisCache.subscribe(PubSubChannel.Update, async (message) => {
     const parsedMessage = JSON.parse(message) as UrlCheck;
     poll(parsedMessage, notificationsService);
   });
 
-  redisCache.subscribe("delete", async (message) => {
+  redisCache.subscribe(PubSubChannel.Delete, async (message) => {
     const parsedMessage = JSON.parse(message) as UrlCheck;
     const key = String(parsedMessage._id) + parsedMessage.url;
     await redisCache.delete(key);

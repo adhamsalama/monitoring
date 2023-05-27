@@ -1,5 +1,5 @@
 import { PipelineStage } from "mongoose";
-import { Optional } from "../types";
+import { Optional, PubSubChannel } from "../types";
 import { CreateCheckDTO } from "./dto/create-check";
 import { UpdateCheckDTO } from "./dto/update-check";
 import { CheckModel } from "./models/check";
@@ -19,7 +19,7 @@ export class ChecksService {
       tag.toLocaleLowerCase()
     );
     const check = await this.checkModel.create({ ...createCheckDTO, userId });
-    this.redisCache.publish("create", JSON.stringify(check));
+    this.redisCache.publish(PubSubChannel.Create, JSON.stringify(check));
     return check.toObject();
   }
 
@@ -39,7 +39,10 @@ export class ChecksService {
       })
       .lean();
     if (deletedCheck) {
-      this.redisCache.publish("delete", JSON.stringify(deletedCheck));
+      this.redisCache.publish(
+        PubSubChannel.Delete,
+        JSON.stringify(deletedCheck)
+      );
     }
     return deletedCheck;
   }
@@ -53,7 +56,10 @@ export class ChecksService {
       .findOneAndUpdate({ _id: id, userId }, { $set: update }, { new: true })
       .lean();
     if (updatedCheck) {
-      this.redisCache.publish("update", JSON.stringify(updatedCheck));
+      this.redisCache.publish(
+        PubSubChannel.Update,
+        JSON.stringify(updatedCheck)
+      );
     }
     return updatedCheck;
   }
