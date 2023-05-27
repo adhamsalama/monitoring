@@ -34,6 +34,7 @@ export const createCheckDTOSchema = zod.object({
       statusCode: zod.number().min(100).max(599),
     })
     .optional(),
+  ignoreSSL: zod.boolean().optional(),
   tags: zod.array(zod.string()).optional(),
 });
 

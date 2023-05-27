@@ -77,6 +77,10 @@ const urlCheckSchema = new Schema<UrlCheck>(
       type: [String],
       required: false,
     },
+    ignoreSSL: {
+      type: Boolean,
+      required: false,
+    },
     userId: {
       type: String,
       required: true,

@@ -28,6 +28,7 @@ export interface UrlCheck {
   assert?: {
     statusCode?: number;
   };
+  ignoreSSL: boolean;
   tags?: string[];
   createdAt: Date;
   updatedAt: Date;
