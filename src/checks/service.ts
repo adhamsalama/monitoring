@@ -125,7 +125,7 @@ class ChecksService {
                     $eq: ["$$this.status", "DOWN"],
                   },
                   then: {
-                    $add: ["$intervalInSeconds", "$$value"],
+                    $add: ["$$this.intervalInSeconds", "$$value"],
                   },
                   else: {
                     $add: [0, "$$value"],
@@ -144,7 +144,7 @@ class ChecksService {
                     $eq: ["$$this.status", "UP"],
                   },
                   then: {
-                    $add: ["$intervalInSeconds", "$$value"],
+                    $add: ["$$this.intervalInSeconds", "$$value"],
                   },
                   else: {
                     $add: [0, "$$value"],
