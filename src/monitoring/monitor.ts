@@ -43,10 +43,17 @@ async function poll(check: UrlCheck) {
         `Website ${check.url} is ${response ? LogStatus.UP : LogStatus.DOWN}`
       );
       if (check.webhook) {
-        axios.post(check.url, {
-          url: `${check.url}${check.path ?? ""}`,
-          status: response ? LogStatus.UP : LogStatus.DOWN,
-        });
+        axios
+          .post(check.url, {
+            url: `${check.url}${check.path ?? ""}`,
+            status: response ? LogStatus.UP : LogStatus.DOWN,
+          })
+          .catch((err) => {
+            console.log(
+              `Error while trying to notify the user using a webhook for check ${check._id}`,
+              err
+            );
+          });
       }
       isUp = false;
     }
