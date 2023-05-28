@@ -2,10 +2,36 @@ import { usersService } from "../../users/service";
 import { CheckModel } from "../models/check";
 import { ChecksService } from "../service";
 import { Protocol } from "../types";
+import { LoggingService } from "../../monitoring/service";
+import { LogModel } from "../../monitoring/models/url";
+import { NotificationsService } from "../../notifications/service";
+import { NotificationChannel } from "../../notifications/types";
+import { Cache } from "../../cache/cache";
 
-const mockPublish = jest.fn();
-const redisMock: any = { publish: mockPublish };
-const checksService = new ChecksService(CheckModel, redisMock);
+const setMock = jest.fn();
+const getMock = jest.fn();
+const deleteMock = jest.fn();
+
+const cacheMock: Cache = {
+  set: setMock,
+  get: getMock,
+  delete: deleteMock,
+};
+const sendMock = jest.fn();
+const emailNotification = {
+  channel: NotificationChannel.Email,
+  send: sendMock,
+};
+const notificationsService = new NotificationsService(
+  [emailNotification],
+  usersService
+);
+const loggingService = new LoggingService(
+  LogModel,
+  notificationsService,
+  cacheMock
+);
+const checksService = new ChecksService(CheckModel, loggingService);
 describe("tests creating checks", () => {
   it("should create check successfully", async () => {
     const checkData = {
@@ -41,7 +67,7 @@ describe("tests creating checks", () => {
     });
     const check = await checksService.create(String(user._id), checkData);
 
-    expect(mockPublish).toBeCalledTimes(1);
+    expect(setMock).toBeCalledTimes(1);
     expect(check).toBeDefined();
     expect(check.url).toEqual(checkData.url);
     expect(check.path).toEqual(checkData.path);
