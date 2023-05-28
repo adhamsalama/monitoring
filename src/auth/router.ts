@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { createUserDtoSchema } from "../users/dto/create-user";
 import { NotificationChannel } from "../notifications/types";
 import { notificationsService } from "../notifications/service";
+import { generateAccessToken, generateVerificationToken } from "./utils";
 
 const router = Router();
 
@@ -20,9 +21,7 @@ router.post("/login", async (req, res) => {
   if (!user) {
     return res.status(401).send("Invalid credentials");
   }
-  const token = jwt.sign(user, process.env.JWT_SECRET!, {
-    expiresIn: "24h",
-  });
+  const token = generateAccessToken(user);
   return res.status(200).send({ token });
 });
 
@@ -32,9 +31,7 @@ router.post("/register", async (req, res) => {
     return res.status(400).send(createUserDto.error);
   }
   const user = await usersService.create(createUserDto.data);
-  const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET!, {
-    expiresIn: "1h",
-  });
+  const token = generateVerificationToken(user);
   const verificationUrl = `${process.env.BASE_URL}/auth/verify?token=${token}`;
   notificationsService.notify(
     String(user._id),
