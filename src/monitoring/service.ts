@@ -4,9 +4,20 @@ import { LogModel } from "./models/url";
 import { timeoutPromise } from "./timeout-promise";
 import { Log, LogStatus } from "./types";
 import https from "https";
+import { Cache } from "../cache/cache";
+import {
+  NotificationsService,
+  notificationsService,
+} from "../notifications/service";
+import { NotificationChannel } from "../notifications/types";
+import { redisCache } from "../cache/redis";
 
 export class LoggingService {
-  constructor(private logModel: typeof LogModel) {}
+  constructor(
+    private logModel: typeof LogModel,
+    private notificationsService: NotificationsService,
+    private cache: Cache
+  ) {}
   async create(
     checkId: string,
     status: LogStatus,
@@ -77,6 +88,55 @@ export class LoggingService {
     console.log({ log: log });
     return response;
   }
+
+  async monitor(check: UrlCheck) {
+    const key = String(check._id) + check.url;
+    await this.cache.set(key, check.intervalInSeconds.toString());
+    let isUp = true;
+    const pollAndLog = async () => {
+      const checkInterval = await this.cache.get(key);
+      if (!checkInterval || Number(checkInterval) !== check.intervalInSeconds) {
+        console.log(
+          `Couldn't find interval in cache or was changed. ${key}=${checkInterval}`
+        );
+        clearInterval(intervalId);
+      }
+      const response = await loggingService.logUrl(check);
+      if (response !== isUp) {
+        this.notificationsService.notify(
+          check.userId,
+          [NotificationChannel.Email],
+          `Website ${check.url} is ${response ? LogStatus.UP : LogStatus.DOWN}`,
+          "Alert for your URL check"
+        );
+        if (check.webhook) {
+          axios
+            .post(check.url, {
+              url: `${check.url}${check.path ?? ""}`,
+              status: response ? LogStatus.UP : LogStatus.DOWN,
+            })
+            .catch((err) => {
+              console.log(
+                `Error while trying to notify the user using a webhook for check ${check._id}`,
+                err
+              );
+            });
+        }
+        isUp = false;
+      }
+    };
+    pollAndLog();
+    const intervalId = setInterval(pollAndLog, check.intervalInSeconds * 1000);
+  }
+
+  async stopMonitoring(check: UrlCheck) {
+    const key = String(check._id) + check.url;
+    await redisCache.delete(key);
+  }
 }
 
-export const loggingService = new LoggingService(LogModel);
+export const loggingService = new LoggingService(
+  LogModel,
+  notificationsService,
+  redisCache
+);

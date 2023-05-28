@@ -1,15 +1,14 @@
 import { PipelineStage } from "mongoose";
-import { Optional, PubSubChannel } from "../types";
+import { Optional } from "../types";
 import { CreateCheckDTO } from "./dto/create-check";
 import { UpdateCheckDTO } from "./dto/update-check";
 import { CheckModel } from "./models/check";
 import { UrlCheck } from "./types";
-import { RedisCache, redisCache } from "../cache/redis";
-
+import { loggingService, LoggingService } from "../monitoring/service";
 export class ChecksService {
   constructor(
     private checkModel: typeof CheckModel,
-    private redisCache: RedisCache
+    private logginService: LoggingService
   ) {}
   async create(
     userId: string,
@@ -19,7 +18,7 @@ export class ChecksService {
       tag.toLocaleLowerCase()
     );
     const check = await this.checkModel.create({ ...createCheckDTO, userId });
-    this.redisCache.publish(PubSubChannel.Create, JSON.stringify(check));
+    this.logginService.monitor(check);
     return check.toObject();
   }
 
@@ -39,10 +38,7 @@ export class ChecksService {
       })
       .lean();
     if (deletedCheck) {
-      this.redisCache.publish(
-        PubSubChannel.Delete,
-        JSON.stringify(deletedCheck)
-      );
+      this.logginService.stopMonitoring(deletedCheck);
     }
     return deletedCheck;
   }
@@ -56,10 +52,7 @@ export class ChecksService {
       .findOneAndUpdate({ _id: id, userId }, { $set: update }, { new: true })
       .lean();
     if (updatedCheck) {
-      this.redisCache.publish(
-        PubSubChannel.Update,
-        JSON.stringify(updatedCheck)
-      );
+      this.logginService.monitor(updatedCheck);
     }
     return updatedCheck;
   }
@@ -183,4 +176,4 @@ export class ChecksService {
   }
 }
 
-export const checksService = new ChecksService(CheckModel, redisCache);
+export const checksService = new ChecksService(CheckModel, loggingService);

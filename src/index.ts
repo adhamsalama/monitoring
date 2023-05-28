@@ -4,7 +4,6 @@ import mongoose from "mongoose";
 import { router as authRouter } from "./auth/router";
 import { router as monitoringRouter } from "./checks/router";
 import { currentUser, requireAuth } from "./auth/middleware";
-import { monitor } from "./monitoring/monitor";
 import { notificationsService } from "./notifications/service";
 
 dotenv.config();
@@ -25,8 +24,6 @@ async function main() {
   app.listen(process.env.PORT, () => {
     console.log(`Server listening on port ${process.env.PORT}`);
   });
-
-  monitor(notificationsService);
 }
 
 main();

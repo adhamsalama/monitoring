@@ -29,30 +29,6 @@ export class RedisCache implements Cache {
     const result = await this.redis.del(key);
     return result === 0 ? false : true;
   }
-
-  async publish(channel: "create" | "update" | "delete", message: string) {
-    await this.pub.publish(channel, message);
-    console.log({ channel, message });
-  }
-  async subscribe(
-    channel: string,
-    callback: (message: string) => void
-  ): Promise<void> {
-    this.sub.subscribe(channel, (err, count) => {
-      if (err) {
-        console.error(`Error while subscribing to channel ${channel}`);
-      } else {
-        console.log(`Subscribed to ${count} channels for channel ${channel}`);
-      }
-      this.sub.on("message", (channelName, message) => {
-        console.log(`Redis got message on channel ${channel}`);
-
-        if (channelName === channel) {
-          callback(message);
-        }
-      });
-    });
-  }
 }
 
 export const redisCache = new RedisCache(new Redis());
