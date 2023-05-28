@@ -73,6 +73,7 @@ describe("tests creating checks", () => {
     expect(check.path).toEqual(checkData.path);
     expect(check.protocol).toEqual(checkData.protocol);
     expect(check.port).toEqual(checkData.port);
+    expect(check.name).toEqual(checkData.name);
     expect(check.webhook).toEqual(checkData.webhook);
     expect(check.timeoutInSeconds).toEqual(checkData.timeout);
     expect(check.intervalInSeconds).toEqual(checkData.intervalInSeconds);
@@ -88,6 +89,7 @@ describe("tests creating checks", () => {
     expect(checkInDB!.url).toEqual(checkData.url);
     expect(checkInDB!.path).toEqual(checkData.path);
     expect(checkInDB!.protocol).toEqual(checkData.protocol);
+    expect(checkInDB!.name).toEqual(checkData.name);
     expect(checkInDB!.port).toEqual(checkData.port);
     expect(checkInDB!.webhook).toEqual(checkData.webhook);
     expect(checkInDB!.timeoutInSeconds).toEqual(checkData.timeout);

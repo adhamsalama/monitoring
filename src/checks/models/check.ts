@@ -20,6 +20,10 @@ const urlCheckSchema = new Schema<UrlCheck>(
       type: Number,
       required: false,
     },
+    name: {
+      type: String,
+      required: true,
+    },
     webhook: {
       type: String,
       required: false,

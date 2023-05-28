@@ -13,6 +13,7 @@ export interface UrlCheck {
   protocol: Protocol;
   path?: string;
   port?: number;
+  name: string;
   webhook?: string;
   timeoutInSeconds: number;
   intervalInSeconds: number;
