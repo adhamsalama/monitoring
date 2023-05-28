@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  monitoring:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+      - redis
+    env_file:
+      - .env
+    networks:
+      - monitoring_network
+  mongodb:
+    image: mongo:4.4.9
+    networks:
+      - monitoring_network
+  redis:
+    image: redis:6-alpine
+    networks:
+      - monitoring_network
+networks:
+  monitoring_network:
