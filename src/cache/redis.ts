@@ -6,8 +6,14 @@ export class RedisCache implements Cache {
   private readonly pub: Redis;
   private readonly sub: Redis;
   constructor(private readonly redis: Redis) {
-    this.pub = new Redis();
-    this.sub = new Redis();
+    this.pub = new Redis({
+      host: process.env.REDIS_HOST,
+      port: parseInt(process.env.REDIS_PORT!),
+    });
+    this.sub = new Redis({
+      host: process.env.REDIS_HOST,
+      port: parseInt(process.env.REDIS_PORT!),
+    });
   }
 
   async get(key: string): Promise<Optional<string>> {
@@ -31,4 +37,9 @@ export class RedisCache implements Cache {
   }
 }
 
-export const redisCache = new RedisCache(new Redis());
+export const redisCache = new RedisCache(
+  new Redis({
+    host: process.env.REDIS_HOST,
+    port: parseInt(process.env.REDIS_PORT!),
+  })
+);
