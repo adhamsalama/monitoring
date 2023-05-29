@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import { router as authRouter } from "./auth/router";
 import { router as monitoringRouter } from "./checks/router";
 import { currentUser, requireAuth } from "./auth/middleware";
+import { checksService } from "./checks/service";
 
 dotenv.config();
 
@@ -18,6 +19,8 @@ app.use("/checks", monitoringRouter);
 export async function main() {
   await mongoose.connect(process.env.MONGODB_URI!);
   console.log("Connected to MongoDB");
+
+  checksService.resumeMonitoring();
 
   app.listen(process.env.PORT, () => {
     console.log(`Server listening on port ${process.env.PORT}`);

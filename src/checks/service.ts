@@ -57,6 +57,12 @@ export class ChecksService {
     return updatedCheck;
   }
 
+  async resumeMonitoring() {
+    const checks = await this.checkModel.find({}).lean();
+    checks.forEach((check) => {
+      this.logginService.monitor(check);
+    });
+  }
   async groupByTags(
     userId: string,
     tags: string[] | null = null
