@@ -103,9 +103,6 @@ export class ChecksService {
       },
       {
         $addFields: {
-          logSize: {
-            $size: "$logs",
-          },
           outages: {
             $size: {
               $filter: {
