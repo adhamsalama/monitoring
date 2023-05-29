@@ -10,8 +10,10 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     env:
+      PORT: 3000
       JWT_SECRET: "some-secret"
-
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
     steps:
     - uses: actions/checkout@v2
 
