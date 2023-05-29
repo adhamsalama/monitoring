@@ -70,7 +70,7 @@ export class ChecksService {
     const pipeline: PipelineStage[] = [
       { $match: { userId, ...(tags?.length && { tags: { $in: tags } }) } },
       { $unwind: "$tags" },
-      { $group: { _id: "$tags", count: { $sum: 1 } } },
+      { $group: { _id: "$tags", count: { $push: "$$ROOT" } } },
     ];
     if (tags?.length) {
       pipeline.splice(2, 0, { $match: { tags: { $in: tags } } });
