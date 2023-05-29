@@ -92,7 +92,7 @@ export class LoggingService {
   async monitor(check: UrlCheck) {
     const key = String(check._id) + check.url;
     await this.cache.set(key, check.intervalInSeconds.toString());
-    let isUp = true;
+    let threshhold = 0;
     const pollAndLog = async () => {
       const checkInterval = await this.cache.get(key);
       if (!checkInterval || Number(checkInterval) !== check.intervalInSeconds) {
@@ -102,7 +102,14 @@ export class LoggingService {
         clearInterval(intervalId);
       }
       const response = await loggingService.logUrl(check);
-      if (response !== isUp) {
+      if (!response) {
+        threshhold++;
+      }
+      if (threshhold >= check.threshold) {
+        console.log(
+          `Threshold reached for check ${check._id} (${check.threshold}) times`
+        );
+        threshhold = 0;
         this.notificationsService.notify(
           check.userId,
           [NotificationChannel.Email],
@@ -122,7 +129,6 @@ export class LoggingService {
               );
             });
         }
-        isUp = false;
       }
     };
     pollAndLog();
