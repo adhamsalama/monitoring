@@ -1,7 +1,7 @@
 import Router from "express";
 import { checksService } from "./service";
 import { createCheckDTOSchema } from "./dto/create-check";
-
+import { updateCheckDTOSchema } from "./dto/update-check";
 const router = Router();
 router.get("/tags", async (req, res) => {
   const { _id: userId } = req.user!;
@@ -62,11 +62,10 @@ router.get("/:id", async (req, res) => {
   return res.json(check);
 });
 
-// I prefer to use PUT for updating resources, but PATCH is also a valid option
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
   const { _id: userId } = req.user!;
-  const UpdateCheckDTO = createCheckDTOSchema.safeParse(req.body);
+  const UpdateCheckDTO = updateCheckDTOSchema.safeParse(req.body);
   if (!UpdateCheckDTO.success) {
     return res.status(400).json(UpdateCheckDTO.error);
   }
