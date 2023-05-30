@@ -24,7 +24,7 @@ router.get("/reports", async (req, res) => {
   } else if (typeof req.query.tags === "string") {
     tags = [req.query.tags.toLocaleLowerCase()];
   }
-  const reports = await checksService.getReport(userId, tags);
+  const reports = await checksService.generateReport(userId, tags);
   return res.json(reports);
 });
 router.post("/", async (req, res) => {

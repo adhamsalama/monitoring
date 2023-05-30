@@ -83,7 +83,7 @@ export class ChecksService {
     return checks;
   }
 
-  async getReport(userId: string, tags?: string[]) {
+  async generateReport(userId: string, tags?: string[]) {
     return this.checkModel.aggregate([
       { $match: { userId, ...(tags?.length && { tags: { $in: tags } }) } },
       {
