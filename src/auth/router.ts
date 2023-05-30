@@ -30,7 +30,13 @@ router.post("/register", async (req, res) => {
   if (!createUserDto.success) {
     return res.status(400).send(createUserDto.error);
   }
-  const user = await usersService.create(createUserDto.data);
+
+  const user = await usersService
+    .create(createUserDto.data)
+    .catch((err: Error) => err);
+  if (user instanceof Error) {
+    return res.status(400).send(user.message);
+  }
   const token = generateVerificationToken(user);
   const verificationUrl = `${process.env.BASE_URL}/auth/verify?token=${token}`;
   notificationsService.notify(
