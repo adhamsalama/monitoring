@@ -2,7 +2,7 @@ import { usersService } from "../../users/service";
 import { CheckModel } from "../models/check";
 import { ChecksService } from "../service";
 import { Protocol } from "../types";
-import { LoggingService } from "../../monitoring/service";
+import { MonitoringService } from "../../monitoring/service";
 import { LogModel } from "../../monitoring/models/url";
 import { NotificationsService } from "../../notifications/service";
 import { NotificationChannel } from "../../notifications/types";
@@ -26,12 +26,12 @@ const notificationsService = new NotificationsService(
   [emailNotification],
   usersService
 );
-const loggingService = new LoggingService(
+const monitoringService = new MonitoringService(
   LogModel,
   notificationsService,
   cacheMock
 );
-const checksService = new ChecksService(CheckModel, loggingService);
+const checksService = new ChecksService(CheckModel, monitoringService);
 describe("tests creating checks", () => {
   it("should create check successfully", async () => {
     const checkData = {

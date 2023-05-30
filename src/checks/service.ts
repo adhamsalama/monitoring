@@ -4,11 +4,11 @@ import { CreateCheckDTO } from "./dto/create-check";
 import { UpdateCheckDTO } from "./dto/update-check";
 import { CheckModel } from "./models/check";
 import { UrlCheck } from "./types";
-import { loggingService, LoggingService } from "../monitoring/service";
+import { monitoringService, MonitoringService } from "../monitoring/service";
 export class ChecksService {
   constructor(
     private checkModel: typeof CheckModel,
-    private logginService: LoggingService
+    private monitoringService: MonitoringService
   ) {}
   async create(
     userId: string,
@@ -18,7 +18,7 @@ export class ChecksService {
       tag.toLocaleLowerCase()
     );
     const check = await this.checkModel.create({ ...createCheckDTO, userId });
-    this.logginService.monitor(check);
+    this.monitoringService.monitor(check);
     return check.toObject();
   }
 
@@ -38,7 +38,7 @@ export class ChecksService {
       })
       .lean();
     if (deletedCheck) {
-      this.logginService.stopMonitoring(deletedCheck);
+      this.monitoringService.stopMonitoring(deletedCheck);
     }
     return deletedCheck;
   }
@@ -52,7 +52,7 @@ export class ChecksService {
       .findOneAndUpdate({ _id: id, userId }, { $set: update }, { new: true })
       .lean();
     if (updatedCheck) {
-      this.logginService.monitor(updatedCheck);
+      this.monitoringService.monitor(updatedCheck);
     }
     return updatedCheck;
   }
@@ -60,7 +60,7 @@ export class ChecksService {
   async resumeMonitoring() {
     const checks = await this.checkModel.find({}).lean();
     checks.forEach((check) => {
-      this.logginService.monitor(check);
+      this.monitoringService.monitor(check);
     });
   }
   async groupByTags(
@@ -179,4 +179,4 @@ export class ChecksService {
   }
 }
 
-export const checksService = new ChecksService(CheckModel, loggingService);
+export const checksService = new ChecksService(CheckModel, monitoringService);

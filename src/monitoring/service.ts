@@ -12,7 +12,7 @@ import {
 import { NotificationChannel } from "../notifications/types";
 import { redisCache } from "../cache/redis";
 
-export class LoggingService {
+export class MonitoringService {
   constructor(
     private logModel: typeof LogModel,
     private notificationsService: NotificationsService,
@@ -101,7 +101,7 @@ export class LoggingService {
         );
         clearInterval(intervalId);
       }
-      const response = await loggingService.logUrl(check);
+      const response = await monitoringService.logUrl(check);
       if (!response) {
         threshhold++;
       }
@@ -141,7 +141,7 @@ export class LoggingService {
   }
 }
 
-export const loggingService = new LoggingService(
+export const monitoringService = new MonitoringService(
   LogModel,
   notificationsService,
   redisCache
