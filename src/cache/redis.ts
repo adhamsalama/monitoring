@@ -3,18 +3,7 @@ import { Cache } from "./cache";
 import { Optional } from "../types";
 
 export class RedisCache implements Cache {
-  private readonly pub: Redis;
-  private readonly sub: Redis;
-  constructor(private readonly redis: Redis) {
-    this.pub = new Redis({
-      host: process.env.REDIS_HOST,
-      port: parseInt(process.env.REDIS_PORT!),
-    });
-    this.sub = new Redis({
-      host: process.env.REDIS_HOST,
-      port: parseInt(process.env.REDIS_PORT!),
-    });
-  }
+  constructor(private readonly redis: Redis) {}
 
   async get(key: string): Promise<Optional<string>> {
     return this.redis.get(key);
