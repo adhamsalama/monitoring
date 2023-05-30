@@ -66,19 +66,19 @@ export class ChecksService {
   async groupByTags(
     userId: string,
     tags: string[] | null = null
-  ): Promise<Record<string, number>[]> {
+  ): Promise<Record<string, UrlCheck[]>[]> {
     const pipeline: PipelineStage[] = [
       { $match: { userId, ...(tags?.length && { tags: { $in: tags } }) } },
       { $unwind: "$tags" },
-      { $group: { _id: "$tags", count: { $push: "$$ROOT" } } },
+      { $group: { _id: "$tags", checks: { $push: "$$ROOT" } } },
     ];
     if (tags?.length) {
       pipeline.splice(2, 0, { $match: { tags: { $in: tags } } });
     }
 
-    const checks: Record<string, number>[] = (
+    const checks: Record<string, UrlCheck[]>[] = (
       await this.checkModel.aggregate(pipeline)
-    ).map(({ _id, count }) => ({ [_id]: count }));
+    ).map(({ _id, checks }) => ({ [_id]: checks }));
 
     return checks;
   }

@@ -399,9 +399,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "$ref": "#/components/schemas/UrlCheck"
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "tagName": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/UrlCheck"
+                        }
+                      }
+                    }
                   }
                 }
               }
